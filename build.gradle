@@ -1,6 +1,3 @@
-group 'com.technogi'
-version '0.0.5'
-
 buildscript {
   ext {
     kotlin_version = '1.1.4-2'
@@ -15,7 +12,21 @@ buildscript {
   }
 }
 
+plugins {
+  id 'java'
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
 apply plugin: 'kotlin'
+
+group 'com.technogi'
+version '0.0.9'
+sourceCompatibility = '1.8'
+
+mainClassName = 'io.vertx.core.Launcher'
+
+def mainVerticleName = 'com.technogi.rdeb.server.HttpServer'
 
 repositories {
   jcenter()
@@ -25,11 +36,12 @@ repositories {
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-  compile "com.github.moguelator:rdeb-client-java:${version}"
+  compile "com.github.Technogi:rdeb-client-java:${version}"
 
   compile "io.vertx:vertx-core:${vertx_version}"
   compile "io.vertx:vertx-web:${vertx_version}"
-  compile "io.vertx:vertx-mongo-client:${vertx_version}"
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+
 
 }
 
@@ -38,4 +50,29 @@ compileKotlin {
 }
 compileTestKotlin {
   kotlinOptions.jvmTarget = "1.8"
+}
+
+run {
+  args = ['run', mainVerticleName,
+          "--launcher-class=$mainClassName",
+          "--redeploy=src/**/*.*",
+          "--on-redeploy=./gradlew classes"
+  ]
+}
+
+shadowJar {
+  baseName = 'rdeb-server'
+  classifier = 'shadow'
+
+  manifest {
+    attributes 'Main-Verticle': mainVerticleName
+  }
+  mergeServiceFiles {
+    include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+  }
+}
+
+// Heroku relies on the 'stage' task to deploy.
+task stage {
+  dependsOn shadowJar
 }
