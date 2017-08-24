@@ -7,6 +7,7 @@ import com.technogi.rdeb.server.impl.InMemoryServer
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
@@ -15,6 +16,8 @@ class HttpServer : AbstractVerticle() {
 
     val CONTENT_TYPE_EVENT = "application/rdeb-event"
     val CONTENT_TYPE_BROADCAST = "application/rdeb-broadcast"
+
+    val log = LoggerFactory.getLogger(HttpServer::class.java)
 
     lateinit var rdebServer: RdebServer
 

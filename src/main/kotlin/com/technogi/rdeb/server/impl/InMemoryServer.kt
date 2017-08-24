@@ -32,7 +32,6 @@ class InMemoryServer : RdebServer, AbstractVerticle() {
             unprocessedEvents.sortBy { it.createdOn }
             event = unprocessedEvents.find({ it.createdOn > pointer })
             if(event!=null){
-                unprocessedEvents.remove(event)
                 eventClientMap.put(clientId,event!!.createdOn)
             }
         }
@@ -57,7 +56,7 @@ class InMemoryServerEvent(event: Event, val broadcast: Boolean = false) : Event(
     val uuid = UUID.randomUUID()
 
     init {
-        this.id = event.id
+        this.type = event.type
         this.props = event.props
         createdOn = Instant.now().toEpochMilli()
     }
