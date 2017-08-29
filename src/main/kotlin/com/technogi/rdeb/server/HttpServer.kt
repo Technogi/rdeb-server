@@ -42,7 +42,13 @@ class HttpServer : AbstractVerticle() {
 
             }
         }
-        server.requestHandler({ router.accept(it) }).listen(8080)
+        server.requestHandler({ router.accept(it) }).listen(config().getInteger("http.port",8080)){
+            if(it.failed()){
+                log.error(it.cause())
+            }else{
+                log.info("Server started at port: ${server.actualPort()}")
+            }
+        }
 
     }
 
