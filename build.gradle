@@ -56,7 +56,8 @@ run {
   args = ['run', mainVerticleName,
           "--launcher-class=$mainClassName",
           "--redeploy=src/**/*.*",
-          "--on-redeploy=./gradlew classes"
+          "--on-redeploy=./gradlew classes",
+          "-conf 'conf/rdeb-conf.json'"
   ]
 }
 
