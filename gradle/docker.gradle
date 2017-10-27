@@ -1,0 +1,46 @@
+apply plugin: 'docker'
+
+docker {
+    baseImage "${technogiBaseImage}"
+    maintainer 'Juan Francisco Alvarez Urquijo <paco@technogi.com.mx>'
+}
+
+// @see https://spring.io/guides/gs/spring-boot-docker/
+// @see https://geowarin.github.io/spring-boot-app-in-docker-image.html
+// @see http://containertutorials.com/docker-compose/spring-boot-app.html
+// @see http://blog.monkey.codes/dockerize-a-spring-boot-application/
+task buildDocker(type: Docker) {
+    push = project.hasProperty('push')
+    applicationName = shadowJar.baseName
+    tag = "${technogiDockerGroup}/${applicationName}"
+    doFirst {
+        copy {
+            from "${project.rootDir}/src/main/docker"
+            into stageDir
+            include "docker-entrypoint.sh"
+            rename("docker-entrypoint.sh", "docker-entrypoint.sh")
+            from "${project.rootDir}/conf"
+            into stageDir
+            include "rdeb-conf.json"
+            rename("rdeb-conf.json", "rdeb-conf.json")
+        }
+    }
+    runCommand("apk add --no-cache bash")
+    volume("/tmp")
+    exposePort(8187)
+    addFile('rdeb-conf.json', '/usr/local/etc/')
+    addFile('docker-entrypoint.sh', '/usr/local/bin/')
+    addFile {
+        from shadowJar
+        rename { 'app.jar' }
+    }
+    runCommand("sh -c 'touch /app.jar'")
+    entryPoint(['docker-entrypoint.sh'])
+    defaultCommand(['sh', '-c', 'java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar -conf /usr/local/etc/rdeb-conf.json'])
+    doLast {
+        println "Run the Docker Container"
+        println "docker run -ti -p 8187:8187 --name $applicationName $tag"
+    }
+}
+
+buildDocker.dependsOn(shadowJar)

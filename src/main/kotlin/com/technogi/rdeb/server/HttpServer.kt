@@ -42,14 +42,13 @@ class HttpServer : AbstractVerticle() {
 
             }
         }
-        server.requestHandler({ router.accept(it) }).listen(config().getInteger("http.port",8080)){
-            if(it.failed()){
+        server.requestHandler({ router.accept(it) }).listen(config().getInteger("http.port", 8080)) {
+            if (it.failed()) {
                 log.error(it.cause())
-            }else{
+            } else {
                 log.info("Server started at port: ${server.actualPort()}")
             }
         }
-
     }
 
     fun post(ctx: RoutingContext, handler: (Boolean) -> Unit) {
@@ -75,10 +74,10 @@ class HttpServer : AbstractVerticle() {
             rdebServer.getNextEvent(clientId) { event ->
                 if (event == null) ctx.response().setStatusCode(404).end();
                 else ctx.response()
-                  .setStatusCode(200)
-                  .end(JsonObject()
-                    .put("type", event.type)
-                    .put("props", event.props).encode())
+                        .setStatusCode(200)
+                        .end(JsonObject()
+                                .put("type", event.type)
+                                .put("props", event.props).encode())
             }
         }
     }

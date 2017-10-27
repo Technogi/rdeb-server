@@ -12,7 +12,6 @@ class EventCodec : MessageCodec<Event, Event> {
         buffer?.appendBytes(serialize(event))
     }
 
-
     override fun decodeFromWire(pos: Int, buffer: Buffer?): Event {
         return deserialize(buffer?.bytes)
     }
